@@ -23,6 +23,8 @@ public class ArbolAVL<T extends Comparable<T>>
          */
         public VerticeAVL(T elemento) {
             // Aquí va su código.
+            super(elemento);
+            altura = 0;
         }
 
         /**
@@ -31,6 +33,7 @@ public class ArbolAVL<T extends Comparable<T>>
          */
         @Override public int altura() {
             // Aquí va su código.
+            return altura;
         }
 
         /**
@@ -56,6 +59,7 @@ public class ArbolAVL<T extends Comparable<T>>
                 return false;
             @SuppressWarnings("unchecked") VerticeAVL vertice = (VerticeAVL)objeto;
             // Aquí va su código.
+            return vertice.altura == altura && super.equals(objeto);
         }
     }
 
@@ -81,6 +85,7 @@ public class ArbolAVL<T extends Comparable<T>>
      */
     @Override protected Vertice nuevoVertice(T elemento) {
         // Aquí va su código.
+        return new VerticeAVL(elemento);
     }
 
     /**
@@ -91,6 +96,12 @@ public class ArbolAVL<T extends Comparable<T>>
      */
     @Override public void agrega(T elemento) {
         // Aquí va su código.
+        super.agrega(elemento);
+        rebalancea(ultimoAgregado);
+    }
+
+    private void rebalancea(VerticeAVL v) {
+
     }
 
     /**
@@ -100,6 +111,18 @@ public class ArbolAVL<T extends Comparable<T>>
      */
     @Override public void elimina(T elemento) {
         // Aquí va su código.
+        VerticeAVL eliminar = (VerticeAVL) busca(elemento);
+
+        if (eliminar == null)
+            return;
+
+        if (eliminar == raiz && elementos == 1)
+            limpia();
+
+        VerticeAVL intercambiado = (VerticeAVL) intercambiaEliminable(eliminar);
+        VerticeAVL padre = (VerticeAVL) intercambiado.padre;
+        eliminaVertice(intercambiado);
+        rebalanceaEliminar(padre);
     }
 
     /**
