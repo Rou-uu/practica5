@@ -42,6 +42,7 @@ public class ArbolAVL<T extends Comparable<T>>
          */
         @Override public String toString() {
             // Aquí va su código.
+            return elemento + " " + altura() + "/" + balance();
         }
 
         /**
@@ -59,7 +60,24 @@ public class ArbolAVL<T extends Comparable<T>>
                 return false;
             @SuppressWarnings("unchecked") VerticeAVL vertice = (VerticeAVL)objeto;
             // Aquí va su código.
-            return vertice.altura == altura && super.equals(objeto);
+            return vertice.altura() == altura() && super.equals(objeto);
+        }
+
+        private int superAltura() {
+            return super.altura();
+        }
+
+        private int balance() {
+            if (izquierdo != null && derecho != null)
+                return izquierdo.altura() - derecho.altura();
+
+            else if (izquierdo != null)
+                return izquierdo.altura() + 1;
+
+            else if (derecho != null)
+                return -1 - derecho.altura();
+
+            return 0;
         }
     }
 
@@ -97,12 +115,176 @@ public class ArbolAVL<T extends Comparable<T>>
     @Override public void agrega(T elemento) {
         // Aquí va su código.
         super.agrega(elemento);
-        rebalancea(ultimoAgregado);
+        VerticeAVL padre = getPadre((VerticeAVL) ultimoAgregado);
+        rebalancea(padre);
     }
-
+    
     private void rebalancea(VerticeAVL v) {
+        VerticeAVL padre = getPadre(v);
+        VerticeAVL p = getHijoI(v);
+        VerticeAVL q = getHijoD(v);
+
+        if (v == null)
+            return;
+
+        v.altura = v.superAltura();
+        int chong = 0;
+
+        if (p != null && q != null)
+            chong = p.altura() - q.altura();
+
+        else if (p != null)
+            chong = p.altura() + 1;
+
+        else if (q != null)
+            chong = 0 - 1 - q.altura();
+
+        int H = v.altura();
+
+        if (chong == -2) {
+            VerticeAVL x = getHijoI(q);
+            VerticeAVL y = getHijoD(q);
+
+            if (q.balance() == 1) {
+                super.giraDerecha(q);
+
+                x.altura = H - 1;
+                q.altura = H - 2;
+
+                q = getHijoD(v);
+                x = getHijoI(q);
+                y = getHijoD(q);
+            }
+
+            H = v.altura();
+
+            super.giraIzquierda(v);
+            if (x != null) {
+                if (x.altura() == H - 2)
+                    v.altura = H - 1;
+                
+                else v.altura = H -2;
+            }
+
+            else
+                v.altura = H - 2;
+
+            if (v.altura() == H - 1)
+                q.altura = H;
+
+            else
+                q.altura = H - 1;
+        }
+
+        else if (chong == 2) {
+            VerticeAVL x = getHijoI(p);
+            VerticeAVL y = getHijoD(p);
+
+            if (p.balance() == -1) {
+                super.giraIzquierda(p);
+
+                y.altura = H - 1;
+                p.altura = H - 2;
+
+                p = getHijoI(v);
+                x = getHijoI(p);
+                y = getHijoD(p);
+            }
+
+            H = v.altura();
+            super.giraDerecha(v);
+
+            if (y != null) {
+                if (y.altura() == H - 2)
+                    v.altura = H - 1;
+
+                else
+                    v.altura = H -2;
+            }
+
+            else
+                v.altura = H - 2;
+
+            if (v.altura() == H - 1)
+                p.altura = H;
+
+            else
+                p.altura = H - 1;
+        }
+
+        rebalancea(getPadre(padre));
+
 
     }
+
+    /*
+    private void rebalancea(VerticeAVL v) {
+        if (v == null)
+            return;
+
+        v.altura = v.superAltura();
+        int balance = v.balance();
+        boolean cambio = false;
+        VerticeAVL padre = getPadre(v);
+
+        if (balance == -2) {
+            VerticeAVL q = getHijoD(v);
+            VerticeAVL x = getHijoI(q);
+            VerticeAVL y = getHijoD(q);
+
+            if (q.balance() == 1) {
+                super.giraDerecha(q);
+                q.altura = q.superAltura();
+                x.altura = x.superAltura();
+                
+            }
+
+            q = getHijoD(v);
+            x = getHijoI(q);
+            y = getHijoD(q);
+
+            int qBal = q.balance();
+
+            if (qBal == 0 || qBal == -1 || qBal == -2) {
+                super.giraIzquierda(v);
+                v.altura = v.superAltura();
+                q.altura = q.superAltura();
+            }
+
+            if (cambio)
+                padre = getPadre(q);
+        }
+
+        else if (balance == 2) {
+            VerticeAVL p = getHijoI(v);
+            VerticeAVL x = getHijoI(p);
+            VerticeAVL y = getHijoD(p);
+
+            if (p.balance() == -1) {
+                super.giraIzquierda(p);
+                p.altura = p.superAltura();
+                y.altura = y.superAltura();
+                
+            }
+
+            p = getHijoD(v);
+            x = getHijoI(p);
+            y = getHijoD(p);
+
+            int pBal = p.balance();
+
+            if (pBal == 0 || pBal == 1 || pBal == 2) {
+                super.giraDerecha(v);
+                v.altura = v.superAltura();
+                p.altura = p.superAltura();
+            }
+
+            if (cambio)
+                padre = getPadre(p);
+        }
+
+        rebalancea(padre);
+    }*/
 
     /**
      * Elimina un elemento del árbol. El método elimina el vértice que contiene
@@ -122,7 +304,7 @@ public class ArbolAVL<T extends Comparable<T>>
         VerticeAVL intercambiado = (VerticeAVL) intercambiaEliminable(eliminar);
         VerticeAVL padre = (VerticeAVL) intercambiado.padre;
         eliminaVertice(intercambiado);
-        rebalanceaEliminar(padre);
+        rebalancea(padre);
     }
 
     /**
@@ -149,5 +331,37 @@ public class ArbolAVL<T extends Comparable<T>>
         throw new UnsupportedOperationException("Los árboles AVL no  pueden " +
                                                 "girar a la derecha por el " +
                                                 "usuario.");
+    }
+
+    /*private VerticeAVL vertice (VerticeArbolBinario v) {
+        return (VerticeAVL) v;
+    }*/
+
+    private int max (int a,  int b) {
+        if (a > b)
+            return a;
+        return b;
+    }
+
+
+    private VerticeAVL getPadre(VerticeAVL r) {
+        if (r != null)
+            return (VerticeAVL) r.padre;
+
+        return null;
+    }
+
+    private VerticeAVL getHijoI(VerticeAVL r) {
+        if (r != null)
+            return (VerticeAVL) r.izquierdo;
+
+        return null;
+    }
+
+    private VerticeAVL getHijoD(VerticeAVL r) {
+        if (r != null)
+            return (VerticeAVL) r.derecho;
+
+        return null;
     }
 }
