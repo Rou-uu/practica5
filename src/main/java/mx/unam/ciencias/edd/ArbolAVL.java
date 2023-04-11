@@ -68,14 +68,17 @@ public class ArbolAVL<T extends Comparable<T>>
         }
 
         private int balance() {
-            if (izquierdo != null && derecho != null)
-                return izquierdo.altura() - derecho.altura();
+            VerticeAVL i = (VerticeAVL) izquierdo;
+            VerticeAVL d = (VerticeAVL) derecho;
 
-            else if (izquierdo != null)
-                return izquierdo.altura() + 1;
+            if (i != null && d != null)
+                return i.altura() - d.altura();
+
+            else if (i != null)
+                return i.altura() + 1;
 
             else if (derecho != null)
-                return -1 - derecho.altura();
+                return - 1 - d.altura();
 
             return 0;
         }
@@ -119,105 +122,6 @@ public class ArbolAVL<T extends Comparable<T>>
         rebalancea(padre);
     }
     
-    private void rebalancea(VerticeAVL v) {
-        VerticeAVL padre = getPadre(v);
-        VerticeAVL p = getHijoI(v);
-        VerticeAVL q = getHijoD(v);
-
-        if (v == null)
-            return;
-
-        v.altura = v.superAltura();
-        int chong = 0;
-
-        if (p != null && q != null)
-            chong = p.altura() - q.altura();
-
-        else if (p != null)
-            chong = p.altura() + 1;
-
-        else if (q != null)
-            chong = 0 - 1 - q.altura();
-
-        int H = v.altura();
-
-        if (chong == -2) {
-            VerticeAVL x = getHijoI(q);
-            VerticeAVL y = getHijoD(q);
-
-            if (q.balance() == 1) {
-                super.giraDerecha(q);
-
-                x.altura = H - 1;
-                q.altura = H - 2;
-
-                q = getHijoD(v);
-                x = getHijoI(q);
-                y = getHijoD(q);
-            }
-
-            H = v.altura();
-
-            super.giraIzquierda(v);
-            if (x != null) {
-                if (x.altura() == H - 2)
-                    v.altura = H - 1;
-                
-                else v.altura = H -2;
-            }
-
-            else
-                v.altura = H - 2;
-
-            if (v.altura() == H - 1)
-                q.altura = H;
-
-            else
-                q.altura = H - 1;
-        }
-
-        else if (chong == 2) {
-            VerticeAVL x = getHijoI(p);
-            VerticeAVL y = getHijoD(p);
-
-            if (p.balance() == -1) {
-                super.giraIzquierda(p);
-
-                y.altura = H - 1;
-                p.altura = H - 2;
-
-                p = getHijoI(v);
-                x = getHijoI(p);
-                y = getHijoD(p);
-            }
-
-            H = v.altura();
-            super.giraDerecha(v);
-
-            if (y != null) {
-                if (y.altura() == H - 2)
-                    v.altura = H - 1;
-
-                else
-                    v.altura = H -2;
-            }
-
-            else
-                v.altura = H - 2;
-
-            if (v.altura() == H - 1)
-                p.altura = H;
-
-            else
-                p.altura = H - 1;
-        }
-
-        rebalancea(getPadre(padre));
-
-
-    }
-
-    /*
     private void rebalancea(VerticeAVL v) {
         if (v == null)
             return;
@@ -267,7 +171,7 @@ public class ArbolAVL<T extends Comparable<T>>
                 
             }
 
-            p = getHijoD(v);
+            p = getHijoI(v);
             x = getHijoI(p);
             y = getHijoD(p);
 
@@ -284,7 +188,7 @@ public class ArbolAVL<T extends Comparable<T>>
         }
 
         rebalancea(padre);
-    }*/
+    }
 
     /**
      * Elimina un elemento del árbol. El método elimina el vértice que contiene
